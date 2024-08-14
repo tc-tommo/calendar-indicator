@@ -1,8 +1,5 @@
-import { Menu, Transition } from '@headlessui/react'
-import { DotsVerticalIcon } from '@heroicons/react/outline'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/solid'
 import {
-  add,
   eachDayOfInterval,
   endOfMonth,
   format,
@@ -15,48 +12,15 @@ import {
   parseISO,
   startOfToday,
 } from 'date-fns'
-import { Fragment, useState } from 'react'
+import { useState } from 'react'
 
 const meetings = [
   {
     id: 1,
-    name: 'Leslie Alexander',
-    imageUrl:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    startDatetime: '2022-05-11T13:00',
-    endDatetime: '2022-05-11T14:30',
-  },
-  {
-    id: 2,
-    name: 'Michael Foster',
-    imageUrl:
-      'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    startDatetime: '2022-05-20T09:00',
-    endDatetime: '2022-05-20T11:30',
-  },
-  {
-    id: 3,
-    name: 'Dries Vincent',
-    imageUrl:
-      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    startDatetime: '2022-05-20T17:00',
-    endDatetime: '2022-05-20T18:30',
-  },
-  {
-    id: 4,
-    name: 'Leslie Alexander',
-    imageUrl:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    startDatetime: '2022-06-09T13:00',
-    endDatetime: '2022-06-09T14:30',
-  },
-  {
-    id: 5,
-    name: 'Michael Foster',
-    imageUrl:
-      'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    startDatetime: '2022-05-13T14:00',
-    endDatetime: '2022-05-13T14:30',
+    name: 'Engineering Team Meeting',
+    startDatetime: '2024-08-14T09:00:00',
+    endDatetime: '2024-08-14T10:00:00',
+    imageUrl: 'https://randomuser.me/api/portraits',
   },
 ]
 
@@ -66,7 +30,7 @@ function classNames(...classes) {
 
 export default function Example() {
   let today = startOfToday()
-  let [selectedDay, setSelectedDay] = useState(today)
+  let [selectedDays, setSelectedDays] = useState([today]) // Allow multiple selected days
   let [currentMonth, setCurrentMonth] = useState(format(today, 'MMM-yyyy'))
   let firstDayCurrentMonth = parse(currentMonth, 'MMM-yyyy', new Date())
 
@@ -76,17 +40,19 @@ export default function Example() {
   })
 
   function previousMonth() {
+    return
     let firstDayNextMonth = add(firstDayCurrentMonth, { months: -1 })
     setCurrentMonth(format(firstDayNextMonth, 'MMM-yyyy'))
   }
 
   function nextMonth() {
+    return
     let firstDayNextMonth = add(firstDayCurrentMonth, { months: 1 })
     setCurrentMonth(format(firstDayNextMonth, 'MMM-yyyy'))
   }
 
   let selectedDayMeetings = meetings.filter((meeting) =>
-    isSameDay(parseISO(meeting.startDatetime), selectedDay)
+    selectedDays.some((day) => isSameDay(parseISO(meeting.startDatetime), day))
   )
 
   return (
@@ -133,28 +99,26 @@ export default function Example() {
                     'py-1.5'
                   )}
                 >
-                  <button
-                    type="button"
-                    onClick={() => setSelectedDay(day)}
+                  <div
                     className={classNames(
-                      isEqual(day, selectedDay) && 'text-white',
-                      !isEqual(day, selectedDay) &&
+                      selectedDays.some((selectedDay) => isEqual(day, selectedDay)) && 'text-white',
+                      !selectedDays.some((selectedDay) => isEqual(day, selectedDay)) &&
                         isToday(day) &&
                         'text-red-500',
-                      !isEqual(day, selectedDay) &&
+                      !selectedDays.some((selectedDay) => isEqual(day, selectedDay)) &&
                         !isToday(day) &&
                         isSameMonth(day, firstDayCurrentMonth) &&
                         'text-gray-900',
-                      !isEqual(day, selectedDay) &&
+                      !selectedDays.some((selectedDay) => isEqual(day, selectedDay)) &&
                         !isToday(day) &&
                         !isSameMonth(day, firstDayCurrentMonth) &&
                         'text-gray-400',
-                      isEqual(day, selectedDay) && isToday(day) && 'bg-red-500',
-                      isEqual(day, selectedDay) &&
+                      selectedDays.some((selectedDay) => isEqual(day, selectedDay)) && isToday(day) && 'bg-red-500',
+                      selectedDays.some((selectedDay) => isEqual(day, selectedDay)) &&
                         !isToday(day) &&
                         'bg-gray-900',
-                      !isEqual(day, selectedDay) && 'hover:bg-gray-200',
-                      (isEqual(day, selectedDay) || isToday(day)) &&
+                      !selectedDays.some((selectedDay) => isEqual(day, selectedDay)) && 'hover:bg-gray-200',
+                      (selectedDays.some((selectedDay) => isEqual(day, selectedDay)) || isToday(day)) &&
                         'font-semibold',
                       'mx-auto flex h-8 w-8 items-center justify-center rounded-full'
                     )}
@@ -162,7 +126,7 @@ export default function Example() {
                     <time dateTime={format(day, 'yyyy-MM-dd')}>
                       {format(day, 'd')}
                     </time>
-                  </button>
+                  </div>
 
                   <div className="w-1 h-1 mx-auto mt-1">
                     {meetings.some((meeting) =>
@@ -178,9 +142,14 @@ export default function Example() {
           <section className="mt-12 md:mt-0 md:pl-14">
             <h2 className="font-semibold text-gray-900">
               Schedule for{' '}
-              <time dateTime={format(selectedDay, 'yyyy-MM-dd')}>
-                {format(selectedDay, 'MMM dd, yyy')}
-              </time>
+              {selectedDays.map((day, idx) => (
+                <span key={idx}>
+                  <time dateTime={format(day, 'yyyy-MM-dd')}>
+                    {format(day, 'MMM dd, yyyy')}
+                  </time>
+                  {idx < selectedDays.length - 1 && ', '}
+                </span>
+              ))}
             </h2>
             <ol className="mt-4 space-y-1 text-sm leading-6 text-gray-500">
               {selectedDayMeetings.length > 0 ? (
@@ -188,7 +157,7 @@ export default function Example() {
                   <Meeting meeting={meeting} key={meeting.id} />
                 ))
               ) : (
-                <p>No meetings for today.</p>
+                <p>No meetings for the selected days.</p>
               )}
             </ol>
           </section>
@@ -203,7 +172,7 @@ function Meeting({ meeting }) {
   let endDateTime = parseISO(meeting.endDatetime)
 
   return (
-    <li className="flex items-center px-4 py-2 space-x-4 group rounded-xl focus-within:bg-gray-100 hover:bg-gray-100">
+    <li className="flex items-center px-4 py-2 space-x-4 group rounded-xl">
       <img
         src={meeting.imageUrl}
         alt=""
@@ -221,58 +190,6 @@ function Meeting({ meeting }) {
           </time>
         </p>
       </div>
-      <Menu
-        as="div"
-        className="relative opacity-0 focus-within:opacity-100 group-hover:opacity-100"
-      >
-        <div>
-          <Menu.Button className="-m-2 flex items-center rounded-full p-1.5 text-gray-500 hover:text-gray-600">
-            <span className="sr-only">Open options</span>
-            <DotsVerticalIcon className="w-6 h-6" aria-hidden="true" />
-          </Menu.Button>
-        </div>
-
-        <Transition
-          as={Fragment}
-          enter="transition ease-out duration-100"
-          enterFrom="transform opacity-0 scale-95"
-          enterTo="transform opacity-100 scale-100"
-          leave="transition ease-in duration-75"
-          leaveFrom="transform opacity-100 scale-100"
-          leaveTo="transform opacity-0 scale-95"
-        >
-          <Menu.Items className="absolute right-0 z-10 mt-2 origin-top-right bg-white rounded-md shadow-lg w-36 ring-1 ring-black ring-opacity-5 focus:outline-none">
-            <div className="py-1">
-              <Menu.Item>
-                {({ active }) => (
-                  <a
-                    href="#"
-                    className={classNames(
-                      active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                      'block px-4 py-2 text-sm'
-                    )}
-                  >
-                    Edit
-                  </a>
-                )}
-              </Menu.Item>
-              <Menu.Item>
-                {({ active }) => (
-                  <a
-                    href="#"
-                    className={classNames(
-                      active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                      'block px-4 py-2 text-sm'
-                    )}
-                  >
-                    Cancel
-                  </a>
-                )}
-              </Menu.Item>
-            </div>
-          </Menu.Items>
-        </Transition>
-      </Menu>
     </li>
   )
 }
